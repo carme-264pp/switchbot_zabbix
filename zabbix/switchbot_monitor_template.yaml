@@ -1,0 +1,87 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: a8d0953f38a244b6a00a6772355eaf93
+      template: 'SwitchBot Monitor'
+      name: 'SwitchBot Monitor'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 04d6b4c30bd14dc1a611f5def06b7b15
+          name: 湿度
+          type: DEPENDENT
+          key: humidity
+          delay: '0'
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.humidity
+          master_item:
+            key: 'switchbot-api[{$CONFIG_PATH},{$DEVICE_ID}]'
+        - uuid: 194a326c167d467bad48a225c1b8fbd1
+          name: 照度
+          type: DEPENDENT
+          key: lightLevel
+          delay: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.lightLevel
+          master_item:
+            key: 'switchbot-api[{$CONFIG_PATH},{$DEVICE_ID}]'
+        - uuid: 4a36fb2e7f684d6297f60ab6ea9d5151
+          name: devices.status
+          key: 'switchbot-api[{$CONFIG_PATH},{$DEVICE_ID}]'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.body
+        - uuid: 88a6e15c054e47a7acaea8e41faed356
+          name: 室温
+          type: DEPENDENT
+          key: temperature
+          delay: '0'
+          value_type: FLOAT
+          units: ℃
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.temperature
+          master_item:
+            key: 'switchbot-api[{$CONFIG_PATH},{$DEVICE_ID}]'
+      macros:
+        - macro: '{$CONFIG_PATH}'
+          value: switchbot/switchbot_config.ini
+        - macro: '{$DEVICE_ID}'
+  graphs:
+    - uuid: 31fd721c2fdd481594d16434d8823e31
+      name: 室温
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 199C0D
+          item:
+            host: 'SwitchBot Monitor'
+            key: temperature
+    - uuid: 3fbb9710a1304917b79dd2cc1269451c
+      name: 湿度
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 199C0D
+          item:
+            host: 'SwitchBot Monitor'
+            key: humidity
+    - uuid: d8f8234d51034d2786bd2b2325227b49
+      name: 照度
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 199C0D
+          item:
+            host: 'SwitchBot Monitor'
+            key: lightLevel
